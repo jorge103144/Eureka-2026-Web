@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎤 Cuestionario · Rúbrica EUREKA 2026</title>
+
+    <!-- Tailwind CSS vía CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js vía CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+
+    <style>
+        .transition-custom {
+            transition: all 0.25s ease;
+        }
+        .question-card {
+            border-left: 6px solid #f7931e;
+            transition: all 0.25s ease;
+        }
+        .question-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0, 51, 102, 0.12);
+        }
+        .question-card .answer {
+            border-top: 2px dashed #e6edf6;
+        }
+        .category-tag {
+            background: #003366;
+            color: white;
+            padding: 0.15rem 1rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .badge-count {
+            background: #f7931e;
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-weight: 700;
+        }
+        .rubric-highlight {
+            background: #f0f4fa;
+            border: 2px solid #f7931e;
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #003366;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #d9e2ef;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f7931e;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e07c0e;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    HEADER
+    ============================================================ -->
+    <header class="bg-[#003366] text-white border-b-4 border-[#f7931e] shadow-lg relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 pointer-events-none">
+            <div class="absolute -top-20 -right-20 w-96 h-96 bg-[#f7931e] rounded-full mix-blend-multiply"></div>
+            <div class="absolute -bottom-20 -left-20 w-96 h-96 bg-[#f7931e] rounded-full mix-blend-multiply"></div>
+        </div>
+        <div class="container mx-auto px-4 py-6 relative z-10 text-center">
+            <div class="flex flex-col items-center justify-center gap-1">
+                <div class="flex items-center gap-3">
+                    <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-lg">
+                        <circle cx="50" cy="50" r="45" stroke="#f7931e" stroke-width="5" />
+                        <path d="M30 50 L45 65 L70 35" stroke="#f7931e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="50" cy="50" r="12" fill="#f7931e" opacity="0.2" />
+                        <text x="50" y="68" font-family="Arial" font-size="14" fill="white" text-anchor="middle" font-weight="bold">E</text>
+                    </svg>
+                    <h1 class="text-4xl md:text-5xl font-black tracking-widest">
+                        EUREKA<span class="text-[#f7931e]">2026</span>
+                    </h1>
+                </div>
+                <p class="text-lg md:text-xl font-semibold text-[#ffd699] tracking-wide">🎤 Cuestionario basado en la Rúbrica de Evaluación</p>
+                <div class="flex flex-wrap justify-center gap-3 mt-2">
+                    <span class="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium">🏆 Categoría C</span>
+                    <span class="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium">🏫 I.E. San Ignacio de Loyola · Nivel Primaria</span>
+                    <span class="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium">📍 Juliaca</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+
+        <!-- Título y descripción -->
+        <div class="text-center mb-10">
+            <h2 class="text-3xl md:text-4xl font-black text-[#003366] inline-block border-b-4 border-[#f7931e] pb-2">
+                🎯 Prepárate para el Máximo Puntaje
+            </h2>
+            <div class="flex flex-wrap justify-center gap-3 mt-4">
+                <span class="rubric-highlight">📋 Criterio 1: Determina una alternativa</span>
+                <span class="rubric-highlight">📐 Criterio 2: Diseña la alternativa</span>
+                <span class="rubric-highlight">🔧 Criterio 3: Implementa y valida</span>
+                <span class="rubric-highlight">📢 Criterio 4: Evalúa y comunica</span>
+            </div>
+            <p class="text-gray-600 mt-4 max-w-2xl mx-auto">
+                Estas preguntas están alineadas con la rúbrica del Anexo E12. Practica cada una para demostrar el <strong>nivel 5</strong> y obtener los <strong>20 puntos</strong>.
+            </p>
+        </div>
+
+        <!-- ============================================================
+        CUESTIONARIO INTERACTIVO CON ALPINE.JS
+        ============================================================ -->
+        <div x-data="cuestionario()" class="space-y-6">
+
+            <!-- Barra de progreso -->
+            <div class="bg-white rounded-2xl p-5 shadow-md flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">📊</span>
+                    <div>
+                        <span class="font-bold text-[#003366] text-lg" x-text="`${preguntasRespondidas} / ${preguntas.length}`"></span>
+                        <span class="text-gray-500 text-sm"> preguntas revisadas</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-medium text-gray-600">Progreso:</span>
+                    <div class="w-40 h-3 bg-[#d9e2ef] rounded-full overflow-hidden">
+                        <div class="h-full bg-[#f7931e] rounded-full transition-all duration-500" :style="`width: ${(preguntasRespondidas / preguntas.length) * 100}%`"></div>
+                    </div>
+                    <span class="text-sm font-bold text-[#003366]" x-text="`${Math.round((preguntasRespondidas / preguntas.length) * 100)}%`"></span>
+                </div>
+                <button @click="resetear" class="text-sm bg-[#003366] hover:bg-[#1a4b7a] text-white px-4 py-1.5 rounded-full transition-custom">
+                    🔄 Reiniciar
+                </button>
+            </div>
+
+            <!-- Filtro por categoría -->
+            <div class="flex flex-wrap gap-2 justify-center">
+                <template x-for="cat in categorias" :key="cat">
+                    <button @click="filtroCategoria = (filtroCategoria === cat ? null : cat)"
+                            class="px-4 py-1.5 rounded-full text-sm font-medium transition-custom"
+                            :class="filtroCategoria === cat ? 'bg-[#f7931e] text-white' : 'bg-white text-[#003366] border border-[#d9e2ef] hover:border-[#f7931e]'"
+                            x-text="cat">
+                    </button>
+                </template>
+            </div>
+
+            <!-- Lista de preguntas -->
+            <template x-for="(pregunta, index) in preguntasFiltradas" :key="index">
+                <div class="bg-white rounded-2xl shadow-md question-card overflow-hidden transition-custom"
+                     :class="{ 'opacity-50': pregunta.respondida }">
+
+                    <div @click="togglePregunta(index)" class="p-5 cursor-pointer flex flex-wrap items-start justify-between gap-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <span class="category-tag" x-text="pregunta.categoria"></span>
+                                <span class="text-xs text-gray-400 font-mono" x-text="`#${index+1}`"></span>
+                                <span x-show="pregunta.respondida" class="text-green-600 text-sm">✅ Revisada</span>
+                                <span x-show="pregunta.rubrica" class="text-xs bg-[#f7931e]/20 text-[#003366] px-2 py-0.5 rounded-full font-semibold">📋 Rúbrica</span>
+                            </div>
+                            <p class="text-[#003366] font-semibold text-lg mt-1" x-text="pregunta.pregunta"></p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl" x-text="pregunta.mostrarRespuesta ? '🔽' : '▶️'"></span>
+                        </div>
+                    </div>
+
+                    <div x-show="pregunta.mostrarRespuesta" x-transition.duration.300ms class="answer p-5 bg-[#f8faff]">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">💡</span>
+                            <div>
+                                <p class="text-sm font-semibold text-[#003366] mb-1">Respuesta modelo (nivel 5):</p>
+                                <p class="text-gray-700 leading-relaxed" x-html="pregunta.respuesta"></p>
+                                <button @click.stop="marcarRespondida(index)"
+                                        class="mt-3 text-xs bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded-full transition-custom"
+                                        x-text="pregunta.respondida ? '✅ Ya revisada' : '✔️ Marcar como revisada'">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div x-show="preguntasFiltradas.length === 0" class="text-center py-12">
+                <p class="text-gray-400 text-lg">😅 No hay preguntas en esta categoría.</p>
+            </div>
+
+            <div class="flex justify-center gap-4 mt-8">
+                <button @click="mostrarTodas()" class="bg-[#f7931e] hover:bg-[#e07c0e] text-white font-bold py-2 px-6 rounded-full transition-custom">
+                    👁️ Mostrar todas las respuestas
+                </button>
+                <button @click="ocultarTodas()" class="bg-[#003366] hover:bg-[#1a4b7a] text-white font-bold py-2 px-6 rounded-full transition-custom">
+                    🙈 Ocultar todas
+                </button>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        SECCIÓN: CONSEJOS PARA EL MÁXIMO PUNTAJE
+        ============================================================ -->
+        <div class="mt-16 bg-white rounded-2xl p-6 shadow-md border-l-[6px] border-[#f7931e]">
+            <h3 class="text-xl font-bold text-[#003366] flex items-center gap-2">🏅 Consejos para obtener 20/20</h3>
+            <ul class="mt-3 space-y-2 text-gray-700">
+                <li class="flex items-start gap-2"><span class="text-[#f7931e] font-bold">▹</span> <strong>Demuestra que conoces las causas</strong> del problema y quiénes se benefician.</li>
+                <li class="flex items-start gap-2"><span class="text-[#f7931e] font-bold">▹</span> <strong>Explica las especificaciones</strong> de tu diseño y el fundamento científico (sensor ultrasónico, servomotor, Arduino).</li>
+                <li class="flex items-start gap-2"><span class="text-[#f7931e] font-bold">▹</span> <strong>Muestra los ajustes</strong> que hiciste durante la construcción y por qué los hiciste.</li>
+                <li class="flex items-start gap-2"><span class="text-[#f7931e] font-bold">▹</span> <strong>Comunica con claridad</strong> los pasos, la característica más importante y las mejoras futuras.</li>
+                <li class="flex items-start gap-2"><span class="text-[#f7931e] font-bold">▹</span> <strong>Usa tu prototipo</strong> para demostrar todo lo que dices. ¡La práctica hace al maestro!</li>
+            </ul>
+        </div>
+        <!-- ============================================================
+        BOTÓN PARA REGRESAR AL INICIO
+        ============================================================ -->
+        <div class="flex justify-center mt-8">
+            <a href="index.html"
+            class="inline-flex items-center gap-3 bg-[#f7931e] hover:bg-[#e07c0e] text-white font-bold py-4 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg">
+                ← Volver al Proyecto
+            </a>
+        </div>
+
+    </main>
+
+    <!-- ============================================================
+    FOOTER
+    ============================================================ -->
+    <footer class="bg-[#003366] text-[#cce0f5] border-t-4 border-[#f7931e] mt-12 py-6 text-center text-sm">
+        <div class="container mx-auto px-4 space-y-1">
+            <p class="font-semibold">Feria Escolar Nacional de Ciencia y Tecnología EUREKA 2026</p>
+            <p>Categoría C · Indagación en Ciencia y Tecnología</p>
+            <p>I.E. San Ignacio de Loyola · Nivel Primaria · Juliaca</p>
+            <p>Proyecto: Tacho de Basura Inteligente · Estudiantes: Diego &amp; Jhon · 5to grado</p>
+            <p class="text-[#99bbdd] text-xs pt-1">
+                <a href="#" class="hover:text-white transition">📧 contacto@eureka2026.pe</a> &nbsp;|&nbsp;
+                <a href="#" class="hover:text-white transition">🔗 Ver más proyectos</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+    JAVASCRIPT (Alpine.js) - TODA LA LÓGICA
+    ============================================================ -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('cuestionario', () => ({
+                // =====================================================
+                // 1. DATOS (MODELO): Preguntas organizadas por categoría
+                // =====================================================
+                preguntas: [
+                    // --- CRITERIO 1: DETERMINA UNA ALTERNATIVA (Nivel 5) ---
+                    {
+                        categoria: '📋 Criterio 1',
+                        rubrica: true,
+                        pregunta: '¿Cuáles son las causas del problema que identificaron?',
+                        respuesta: `"Las causas son: 1) Los tachos tradicionales requieren contacto físico con las manos para abrirlos, 2) Esto propaga gérmenes y bacterias entre los estudiantes, 3) Las tapas quedan abiertas generando malos olores y desorden, 4) Falta de cultura de reciclaje en nuestra escuela."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '📋 Criterio 1',
+                        rubrica: true,
+                        pregunta: '¿Quiénes se benefician con su solución tecnológica y por qué?',
+                        respuesta: `"Se benefician todos los estudiantes, docentes y personal de la I.E. San Ignacio de Loyola, porque ya no tendrán que tocar las tapas sucias. También se beneficia el medio ambiente al fomentar el reciclaje y reducir la contaminación en nuestra ciudad de Juliaca."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '📋 Criterio 1',
+                        rubrica: true,
+                        pregunta: '¿Qué antecedentes relacionados con el problema investigaron?',
+                        respuesta: `"Investigamos que en muchas escuelas los tachos de basura son un foco de infecciones. Vimos videos de proyectos similares con Arduino y nos dimos cuenta de que la tecnología puede solucionar este problema de manera económica y efectiva."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+
+                    // --- CRITERIO 2: DISEÑA LA ALTERNATIVA (Nivel 5) ---
+                    {
+                        categoria: '📐 Criterio 2',
+                        rubrica: true,
+                        pregunta: '¿Cuáles son las especificaciones que debe cumplir su tacho inteligente?',
+                        respuesta: `"Debe: 1) Abrir la tapa automáticamente al detectar una persona a ≤20 cm, 2) Mantenerse abierto 7 segundos, 3) Funcionar con batería de 9V, 4) Ser económico (menos de S/100), 5) Ser fácil de usar para niños de primaria, 6) Ser resistente y duradero."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '📐 Criterio 2',
+                        rubrica: true,
+                        pregunta: '¿Cómo explicarías el fundamento científico de tu proyecto?',
+                        respuesta: `"Usamos el principio de reflexión del sonido (sensor ultrasónico) que mide distancias calculando el tiempo que tarda el eco en volver. La ley de acción-reacción (servomotor) convierte la señal eléctrica en movimiento para abrir la tapa. El Arduino actúa como un cerebro que procesa señales y envía órdenes."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '📐 Criterio 2',
+                        rubrica: true,
+                        pregunta: '¿Qué recursos y materiales seleccionaron y por qué?',
+                        respuesta: `"Seleccionamos Arduino UNO (cerebro), sensor HC-SR04 (ojos), servomotor SG90 (músculos), cables jumper (nervios), tacho de cartón (cuerpo) y batería 9V (energía). Elegimos estos porque son económicos, fáciles de conseguir y funcionan perfectamente para nuestro prototipo."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '📐 Criterio 2',
+                        rubrica: true,
+                        pregunta: '¿Cómo fue el plano o boceto que diseñaron?',
+                        respuesta: `"Dibujamos un plano donde ubicamos el sensor en la parte frontal del tacho, el servomotor en la tapa, y el Arduino en la parte trasera. También trazamos las conexiones eléctricas y la ruta de los cables para que no estorben."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '📐 Criterio 2',
+                        rubrica: true,
+                        pregunta: '¿Cuál fue el presupuesto que elaboraron?',
+                        respuesta: `"Sumamos todos los materiales: Arduino S/27, sensor S/6, cables S/7, servomotor S/9, tacho S/5, batería S/12 y otros S/2. Total S/83, más 10% de imprevistos S/8.30, dando un total de S/91.30. ¡Menos de 100 soles!"`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+
+                    // --- CRITERIO 3: IMPLEMENTA Y VALIDA (Nivel 5) ---
+                    {
+                        categoria: '🔧 Criterio 3',
+                        rubrica: true,
+                        pregunta: '¿Qué ajustes realizaron durante la construcción?',
+                        respuesta: `"Ajustamos: 1) La distancia de detección (la dejamos en 20 cm), 2) El tiempo de apertura (lo subimos a 7 segundos), 3) La posición del sensor para que no se active con pasos lejanos, 4) El presupuesto final (S/91.30), 5) El ángulo del servomotor para que abra bien la tapa."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '🔧 Criterio 3',
+                        rubrica: true,
+                        pregunta: '¿Cómo probaron el funcionamiento del prototipo?',
+                        respuesta: `"Hicimos pruebas acercando la mano a diferentes distancias. Verificamos que la tapa se abra solo a ≤20 cm y que se cierre después de 7 segundos. Repetimos la prueba 10 veces y funcionó correctamente en 9 de ellas. Ajustamos el código hasta lograr un 100% de efectividad."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+
+                    // --- CRITERIO 4: EVALÚA Y COMUNICA (Nivel 5) ---
+                    {
+                        categoria: '📢 Criterio 4',
+                        rubrica: true,
+                        pregunta: '¿Cuál es la característica más importante de su solución tecnológica?',
+                        respuesta: `"La característica más importante es que <strong>elimina el contacto físico</strong> con la tapa, lo que previene la transmisión de enfermedades y promueve una cultura de higiene en la escuela. Además, es automático y no requiere que el usuario haga nada más que acercarse."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '📢 Criterio 4',
+                        rubrica: true,
+                        pregunta: '¿Qué mejoras propondrían para el futuro?',
+                        respuesta: `"Proponemos: 1) Agregar un panel solar para que sea autosostenible, 2) Un LED que indique cuando el tacho está lleno, 3) Implementar varios tachos en toda la escuela, 4) Incluir un sistema de separación de residuos (orgánico/inorgánico), 5) Conectarlo a una app para monitorear su uso."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '📢 Criterio 4',
+                        rubrica: true,
+                        pregunta: '¿Cómo explican el funcionamiento de su tacho usando principios científicos?',
+                        respuesta: `"El sensor ultrasónico emite ondas de sonido que rebotan en la persona. Midiendo el tiempo de ida y vuelta, calculamos la distancia (principio de eco). El Arduino procesa esa información y, si la distancia es ≤20 cm, envía una señal al servomotor, que gira gracias a la energía eléctrica (ley de acción-reacción) y abre la tapa."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+
+                    // --- PREGUNTAS GENERALES (ya existentes) ---
+                    {
+                        categoria: '🧠 El problema',
+                        rubrica: false,
+                        pregunta: '¿Cuál es el problema que quisieron resolver con este proyecto?',
+                        respuesta: `"En nuestra escuela, los tachos de basura normales tienen tapas que hay que tocar con las manos para abrirlas. Esto es un problema porque podemos contagiarnos de gérmenes y bacterias. Además, muchas veces las tapas quedan abiertas y generan malos olores."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '⚙️ Diseño',
+                        rubrica: false,
+                        pregunta: '¿Qué materiales usaron y por qué?',
+                        respuesta: `"Usamos una placa Arduino UNO porque es como el cerebro del proyecto. Un sensor ultrasónico para que detecte a las personas, un servomotor para que mueva la tapa, y un tacho de plástico. También usamos cables y una protoboard para conectar todo."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '🔬 Ciencia',
+                        rubrica: false,
+                        pregunta: '¿Cómo funciona el sensor ultrasónico?',
+                        respuesta: `"El sensor funciona como los murciélagos. Emite un sonido que no podemos oír y mide el tiempo que tarda en rebotar en un objeto. Con ese tiempo, el Arduino calcula la distancia a la que está la persona."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '💰 Costos',
+                        rubrica: false,
+                        pregunta: '¿Cuánto costó construir el prototipo?',
+                        respuesta: `"Costó aproximadamente 91 soles. Los materiales más caros fueron el Arduino y la batería, pero el sensor y el servo son más económicos. ¡Menos de 100 soles por un tacho inteligente!"`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '🌍 Impacto',
+                        rubrica: false,
+                        pregunta: '¿Cómo beneficia su proyecto a su escuela y a su comunidad?',
+                        respuesta: `"Beneficia porque reduce el contacto con gérmenes y bacterias, así los estudiantes se enferman menos. También fomenta una cultura de limpieza y orden, y nos ayuda a cuidar nuestro medio ambiente en Juliaca."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                    {
+                        categoria: '🎯 Sorpresa',
+                        rubrica: false,
+                        pregunta: '¿Qué es la variable independiente y dependiente de su proyecto?',
+                        respuesta: `"La variable independiente es el uso del sistema tecnológico, es decir, el tacho con sensor y servo. La variable dependiente es la reducción del contacto con bacterias, o sea, la mejora de la higiene."`,
+                        mostrarRespuesta: false,
+                        respondida: false,
+                    },
+                ],
+
+                filtroCategoria: null,
+
+                // =====================================================
+                // 2. COMPUTED
+                // =====================================================
+                get categorias() {
+                    const cats = this.preguntas.map(p => p.categoria);
+                    return [...new Set(cats)];
+                },
+
+                get preguntasFiltradas() {
+                    if (!this.filtroCategoria) return this.preguntas;
+                    return this.preguntas.filter(p => p.categoria === this.filtroCategoria);
+                },
+
+                get preguntasRespondidas() {
+                    return this.preguntas.filter(p => p.respondida).length;
+                },
+
+                // =====================================================
+                // 3. MÉTODOS
+                // =====================================================
+                togglePregunta(index) {
+                    const preguntaReal = this.preguntas[index];
+                    if (preguntaReal) {
+                        preguntaReal.mostrarRespuesta = !preguntaReal.mostrarRespuesta;
+                    }
+                },
+
+                marcarRespondida(index) {
+                    const preguntaReal = this.preguntas[index];
+                    if (preguntaReal) {
+                        preguntaReal.respondida = !preguntaReal.respondida;
+                    }
+                },
+
+                mostrarTodas() {
+                    this.preguntas.forEach(p => p.mostrarRespuesta = true);
+                },
+
+                ocultarTodas() {
+                    this.preguntas.forEach(p => p.mostrarRespuesta = false);
+                },
+
+                resetear() {
+                    this.preguntas.forEach(p => {
+                        p.mostrarRespuesta = false;
+                        p.respondida = false;
+                    });
+                    this.filtroCategoria = null;
+                },
+            }));
+        });
+    </script>
+</body>
+</html>

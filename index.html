@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EUREKA 2026 · Tacho de Basura Inteligente</title>
+
+    <!-- Tailwind CSS vía CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js vía CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+
+    <!-- Estilos personalizados mínimos (para detalles que Tailwind no cubre) -->
+    <style>
+        /* Línea de tiempo: personalización de la línea vertical y marcadores */
+        .timeline-line {
+            position: relative;
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #f7931e, #003366);
+            border-radius: 4px;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 3.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        .timeline-marker {
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 48px;
+            height: 48px;
+            background: #003366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            border: 3px solid #f7931e;
+            box-shadow: 0 0 0 4px white;
+            z-index: 2;
+        }
+        /* Tarjetas de anatomía: efecto hover */
+        .anatomy-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(247, 147, 30, 0.2);
+            border-color: #f7931e;
+        }
+        /* Transiciones suaves */
+        .transition-custom {
+            transition: all 0.25s ease;
+        }
+        /* Scrollbar personalizada (opcional) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #d9e2ef;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f7931e;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e07c0e;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    HEADER (con colores EUREKA)
+    ============================================================ -->
+    <header class="bg-[#003366] text-white border-b-4 border-[#f7931e] shadow-lg relative overflow-hidden">
+        <!-- Decoración de fondo -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none">
+            <div class="absolute -top-20 -right-20 w-96 h-96 bg-[#f7931e] rounded-full mix-blend-multiply"></div>
+            <div class="absolute -bottom-20 -left-20 w-96 h-96 bg-[#f7931e] rounded-full mix-blend-multiply"></div>
+        </div>
+
+        <div class="container mx-auto px-4 py-8 relative z-10 text-center">
+            <div class="flex flex-col items-center justify-center gap-2">
+                <!-- Logo SVG + texto -->
+                <div class="flex items-center gap-3">
+                    <svg width="70" height="70" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-lg">
+                        <circle cx="50" cy="50" r="45" stroke="#f7931e" stroke-width="5" />
+                        <path d="M30 50 L45 65 L70 35" stroke="#f7931e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="50" cy="50" r="12" fill="#f7931e" opacity="0.2" />
+                        <text x="50" y="68" font-family="Arial" font-size="14" fill="white" text-anchor="middle" font-weight="bold">E</text>
+                    </svg>
+                    <h1 class="text-5xl md:text-7xl font-black tracking-widest">
+                        EUREKA<span class="text-[#f7931e]">2026</span>
+                    </h1>
+                </div>
+                <p class="text-xl md:text-2xl font-semibold text-[#ffd699] tracking-wide">Feria de Ciencia y Tecnología</p>
+                <div class="flex flex-wrap justify-center gap-3 mt-2">
+                    <span class="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium">🏆 Categoría C</span>
+                    <span class="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium">🏫 I.E. San Ignacio de Loyola · Nivel Primaria</span>
+                    <span class="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium">📍 Juliaca</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+
+        <!-- ============================================================
+        BANNER INFORMATIVO (tarjetas con íconos)
+        ============================================================ -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <div class="bg-white rounded-2xl p-5 text-center border border-[#e6edf6] border-b-[5px] border-b-[#f7931e] shadow-md transition-custom hover:-translate-y-1 hover:shadow-lg">
+                <div class="text-4xl mb-1">📘</div>
+                <div class="text-xs uppercase tracking-widest text-[#f7931e] font-bold">Área curricular</div>
+                <div class="font-bold text-[#003366] text-lg">Ciencia y Tecnología</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 text-center border border-[#e6edf6] border-b-[5px] border-b-[#f7931e] shadow-md transition-custom hover:-translate-y-1 hover:shadow-lg">
+                <div class="text-4xl mb-1">⚙️</div>
+                <div class="text-xs uppercase tracking-widest text-[#f7931e] font-bold">Competencia</div>
+                <div class="font-bold text-[#003366] text-lg">Diseña y construye soluciones tecnológicas<br/>para resolver problemas de su entorno</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 text-center border border-[#e6edf6] border-b-[5px] border-b-[#f7931e] shadow-md transition-custom hover:-translate-y-1 hover:shadow-lg">
+                <div class="text-4xl mb-1">🔬</div>
+                <div class="text-xs uppercase tracking-widest text-[#f7931e] font-bold">Área de participación</div>
+                <div class="font-bold text-[#003366] text-lg">Indagación en Ciencia y Tecnología</div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        SECCIÓN: RESUMEN DEL INFORME
+        ============================================================ -->
+        <h2 class="text-3xl font-bold text-[#003366] border-b-4 border-[#f7931e] pb-2 inline-block mb-6">
+            📄 Resumen del Informe del Proyecto
+        </h2>
+
+        <div class="space-y-6">
+            <!-- Título -->
+            <div class="bg-white rounded-2xl p-6 shadow-md border-l-[6px] border-[#f7931e] transition-custom hover:shadow-lg">
+                <h3 class="text-xl font-bold text-[#003366] flex items-center gap-2">🧠 Título del Informe</h3>
+                <p class="text-lg font-semibold text-[#003366] mt-1">"Tacho de Basura Inteligente: Una Solución Tecnológica para una Escuela más Limpia y Saludable"</p>
+            </div>
+
+            <!-- Problema -->
+            <div class="bg-white rounded-2xl p-6 shadow-md border-l-[6px] border-[#f7931e] transition-custom hover:shadow-lg">
+                <h3 class="text-xl font-bold text-[#003366] flex items-center gap-2">❓ a) Planteamiento del problema</h3>
+                <p class="mt-1 text-gray-700">En la I.E. San Ignacio de Loyola Nivel Primaria de Juliaca, los tachos de basura tradicionales requieren que los estudiantes toquen las tapas con las manos para abrirlos. Esto provoca la transmisión de gérmenes y bacterias, además de generar malos olores cuando las tapas quedan abiertas. Por eso, nos preguntamos: <strong>¿De qué manera el diseño de un tacho inteligente automatizado permite reducir el riesgo de contaminación por contacto físico y mejorar la disposición de residuos en nuestra escuela?</strong></p>
+            </div>
+
+            <!-- Proyecto -->
+            <div class="bg-white rounded-2xl p-6 shadow-md border-l-[6px] border-[#f7931e] transition-custom hover:shadow-lg">
+                <h3 class="text-xl font-bold text-[#003366] flex items-center gap-2">⚙️ b) ¿En qué consiste el proyecto?</h3>
+                <p class="mt-1 text-gray-700">Nuestro proyecto consiste en un prototipo de tacho de basura que abre su tapa automáticamente cuando una persona se acerca. Utiliza una placa <strong>Arduino UNO</strong>, un <strong>sensor ultrasónico</strong> (que funciona como los "ojos" del tacho) y un <strong>servomotor</strong> (que actúa como los "músculos" que mueven la tapa). Así, las personas pueden botar la basura sin necesidad de tocar el tacho, mejorando la higiene.</p>
+            </div>
+
+            <!-- Metodología -->
+            <div class="bg-white rounded-2xl p-6 shadow-md border-l-[6px] border-[#f7931e] transition-custom hover:shadow-lg">
+                <h3 class="text-xl font-bold text-[#003366] flex items-center gap-2">📋 c) Metodología empleada</h3>
+                <ul class="list-none mt-1 space-y-1 text-gray-700">
+                    <li class="flex items-start gap-2"><span class="text-[#f7931e] font-bold">▹</span> Investigamos cómo funcionan los sensores y motores.</li>
+                    <li class="flex items-start gap-2"><span class="text-[#f7931e] font-bold">▹</span> Diseñamos el plano del prototipo y conectamos todos los componentes electrónicos.</li>
+                    <li class="flex items-start gap-2"><span class="text-[#f7931e] font-bold">▹</span> Programamos el Arduino para que el sensor detecte a una persona a 20 cm de distancia y el servomotor abra la tapa.</li>
+                    <li class="flex items-start gap-2"><span class="text-[#f7931e] font-bold">▹</span> Montamos todo en un tacho de plástico y realizamos varias pruebas para ajustar el tiempo de apertura (7 segundos) y asegurar su correcto funcionamiento.</li>
+                </ul>
+            </div>
+
+            <!-- Resultado -->
+            <div class="bg-white rounded-2xl p-6 shadow-md border-l-[6px] border-[#f7931e] transition-custom hover:shadow-lg">
+                <h3 class="text-xl font-bold text-[#003366] flex items-center gap-2">🏁 d) Principal resultado y conclusión</h3>
+                <p class="mt-1 text-gray-700">Logramos construir un tacho que funciona correctamente: detecta la presencia de una persona y abre la tapa automáticamente. Concluimos que esta solución tecnológica es efectiva para eliminar el contacto físico con la basura, reduciendo el riesgo de enfermedades. Como propuesta futura, sugerimos implementar estos tachos en toda la escuela y agregar un <strong>panel solar</strong> para que funcionen con energía renovable, contribuyendo así al cuidado del medio ambiente en nuestra querida ciudad de <strong>Juliaca</strong>.</p>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        SECCIÓN: CUADERNO DE EXPERIENCIA (Línea de tiempo)
+        ============================================================ -->
+        <h2 class="text-3xl font-bold text-[#003366] border-b-4 border-[#f7931e] pb-2 inline-block mt-12 mb-6">
+            📓 Cuaderno de Experiencia
+        </h2>
+
+        <div class="bg-white rounded-2xl p-6 shadow-md border-l-[6px] border-[#003366]">
+            <p class="font-medium text-[#003366] mb-4">📸 Cada paso de nuestro proyecto, con fechas, actividades y aprendizajes.</p>
+
+            <div class="timeline-line relative pl-4">
+                <!-- Ítem 1 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">1</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 15/06/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">💡 Lluvia de ideas</div>
+                        <p class="text-gray-700">Buscamos un problema real en nuestra escuela. Observamos que los tachos de basura convencionales están sucios y todos tenemos que tocarlos con las manos para abrirlos.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> El principal problema es la higiene escolar. Nadie quiere tocar la tapa sucia del tacho por miedo a los gérmenes.</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Lluvia+de+ideas" alt="Lluvia de ideas" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ítem 2 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">2</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 20/06/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">🔍 Investigación</div>
+                        <p class="text-gray-700">Buscamos en internet 'tacho de basura inteligente' y analizamos videos de proyectos similares. Vimos que es viable construirlo usando la tecnología Arduino.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> ¡El proyecto es posible y retador! Aprendimos que necesitaremos un sensor de distancia y un servomotor para la tapa.</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Investigación" alt="Investigación" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ítem 3 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">3</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 25/06/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">📐 Diseño del plano</div>
+                        <p class="text-gray-700">Dibujamos un plano del tacho. Decidimos la ubicación del sensor ultrasónico en la parte frontal y del servomotor fijado a la tapa para jalar el hilo de apertura.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> El sensor actúa como los ojos (adelante) y el servo como los músculos (en la tapa) que levantan la compuerta.</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Diseño+del+plano" alt="Diseño del plano" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ítem 4 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">4</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 05/07/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">🛒 Compra de materiales</div>
+                        <p class="text-gray-700">Cotizamos y compramos los componentes en Electronic MIHABA de Juliaca: Placa Arduino, sensor HC-SR04, servo SG90, cables, pulsador, led y batería de 9V.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> ¡Adquirimos todo por S/ 83.00 soles en total! Mantener un presupuesto económico nos permite ser muy viables y escalables.</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Compra+de+materiales" alt="Compra de materiales" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ítem 5 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">5</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 10/07/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">🔌 Conexiones (1er Intento)</div>
+                        <p class="text-gray-700">Tratamos de conectar todos los cables y componentes en el protoboard para realizar una prueba preliminar, pero el circuito no dio señales de vida.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> ¡Error de conexión! Aprendimos que cada pin debe ir al puerto correcto del Arduino. Revisamos detenidamente el diagrama físico.</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Conexiones" alt="Conexiones" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ítem 6 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">6</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 15/07/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">💻 Programación</div>
+                        <p class="text-gray-700">Escribimos el código lógico en Arduino IDE y lo subimos a la placa usando nuestra computadora. El servomotor respondió moviéndose por primera vez.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> ¡El servo giró exitosamente! Ahora el siguiente paso es lograr que responda de forma inteligente a las lecturas del sensor ultrasónico.</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Programación" alt="Programación" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ítem 7 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">7</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 20/07/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">🧩 Integración lógica</div>
+                        <p class="text-gray-700">Acoplamos las lecturas del sensor y las órdenes del servomotor dentro del mismo código. Probamos acercando la mano directamente al sensor.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> ¡Éxito total de integración! Al detectar nuestra mano en el aire, el Arduino envía una señal automática que mueve el servomotor.</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Integración+lógica" alt="Integración lógica" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ítem 8 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">8</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 25/07/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">🧰 Montaje en el tacho</div>
+                        <p class="text-gray-700">Procedimos al montaje físico. Pegamos la placa Arduino, el sensor ultrasónico y el servomotor al tacho de cartón utilizando silicona caliente.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> ¡El tacho ya parece un robot! Es un sistema ordenado y fijo. Verificamos que los cables no obstruyan el movimiento de la tapa.</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Montaje+final" alt="Montaje final" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ítem 9 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">9</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 30/07/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">🧪 Calibración final</div>
+                        <p class="text-gray-700">Hicimos múltiples pruebas prácticas simulando botar basura. Calibramos la distancia y modificamos el tiempo de espera en el código.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> ¡Apunte perfecto: Distancia establecida a 20 cm y tiempo de apertura sostenida por 7 segundos. ¡Funciona de forma automática y segura!</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Calibración+final" alt="Calibración final" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ítem 10 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">10</div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-[#e6edf6] hover:border-[#f7931e] transition-custom">
+                        <div class="font-bold text-[#f7931e] text-sm">📅 05/08/2026</div>
+                        <div class="font-bold text-[#003366] text-lg">🏆 Listo para la feria</div>
+                        <p class="text-gray-700">Dos estudiantes varones de 5to de primaria preparados para exponer nuestro proyecto en la feria Eureka. Diseñamos material visual y organizamos el diario.</p>
+                        <div class="mt-2 bg-[#f2f7ff] p-3 rounded-lg border-l-4 border-[#f7931e] italic text-[#1a3a6b]"><strong>Aprendizaje:</strong> ¡Estamos sumamente orgullosos! Demostramos que dos niños con ingenio pueden resolver problemas de salud con tecnología nacional.</div>
+                        <div class="mt-3 rounded-lg overflow-hidden bg-[#d9e2ef] max-w-xs">
+                            <img src="https://placehold.co/400x250/003366/f7931e?text=Listo+para+la+feria" alt="Listo para la feria" class="w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        SECCIÓN: ANATOMÍA Y PRESUPUESTO (NUEVA)
+        ============================================================ -->
+        <h2 class="text-3xl font-bold text-[#003366] border-b-4 border-[#f7931e] pb-2 inline-block mt-12 mb-6">
+            🧬 Anatomía y Presupuesto
+        </h2>
+
+        <div class="bg-white rounded-2xl p-6 shadow-md border-l-[6px] border-[#f7931e]">
+            <p class="text-lg font-semibold text-[#003366] mb-1">¡Salud por menos de S/ 100!</p>
+            <p class="text-gray-600 mb-6">Evita el contacto con bacterias, ahorrando en medicinas al prevenir enfermedades por contaminación.</p>
+
+            <!-- Tarjetas de componentes (anatomía) -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                <div class="anatomy-card bg-white rounded-2xl p-4 text-center border-2 border-[#e6edf6] shadow-sm transition-custom cursor-default">
+                    <div class="text-4xl mb-1">🧠</div>
+                    <div class="font-bold text-[#003366] text-sm">Cerebro</div>
+                    <div class="text-xs text-gray-500">Arduino</div>
+                    <div class="text-[#f7931e] font-bold text-lg">S/ 27</div>
+                </div>
+                <div class="anatomy-card bg-white rounded-2xl p-4 text-center border-2 border-[#e6edf6] shadow-sm transition-custom cursor-default">
+                    <div class="text-4xl mb-1">👀</div>
+                    <div class="font-bold text-[#003366] text-sm">Ojos</div>
+                    <div class="text-xs text-gray-500">Sensor Ultrasónico</div>
+                    <div class="text-[#f7931e] font-bold text-lg">S/ 6</div>
+                </div>
+                <div class="anatomy-card bg-white rounded-2xl p-4 text-center border-2 border-[#e6edf6] shadow-sm transition-custom cursor-default">
+                    <div class="text-4xl mb-1">🧵</div>
+                    <div class="font-bold text-[#003366] text-sm">Nervios</div>
+                    <div class="text-xs text-gray-500">Cables Jumper</div>
+                    <div class="text-[#f7931e] font-bold text-lg">S/ 7</div>
+                </div>
+                <div class="anatomy-card bg-white rounded-2xl p-4 text-center border-2 border-[#e6edf6] shadow-sm transition-custom cursor-default">
+                    <div class="text-4xl mb-1">💪</div>
+                    <div class="font-bold text-[#003366] text-sm">Músculos</div>
+                    <div class="text-xs text-gray-500">Servomotor</div>
+                    <div class="text-[#f7931e] font-bold text-lg">S/ 9</div>
+                </div>
+                <div class="anatomy-card bg-white rounded-2xl p-4 text-center border-2 border-[#e6edf6] shadow-sm transition-custom cursor-default">
+                    <div class="text-4xl mb-1">🪣</div>
+                    <div class="font-bold text-[#003366] text-sm">Cuerpo</div>
+                    <div class="text-xs text-gray-500">Tacho de cartón</div>
+                    <div class="text-[#f7931e] font-bold text-lg">S/ 5</div>
+                </div>
+                <div class="anatomy-card bg-white rounded-2xl p-4 text-center border-2 border-[#e6edf6] shadow-sm transition-custom cursor-default">
+                    <div class="text-4xl mb-1">🔋</div>
+                    <div class="font-bold text-[#003366] text-sm">Energía</div>
+                    <div class="text-xs text-gray-500">Batería 9V</div>
+                    <div class="text-[#f7931e] font-bold text-lg">S/ 12</div>
+                </div>
+            </div>
+
+            <!-- Procedencia y tabla de costos (con Alpine.js para mostrar detalles) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="font-semibold text-[#003366]">📌 Procedencia de los Precios</p>
+                    <p class="text-sm text-gray-600">Costos basados en cotizaciones reales de la tienda <strong>Electronic MIHABA</strong> en Juliaca.</p>
+                    <div class="mt-4 bg-[#f2f7ff] p-4 rounded-xl border border-[#d9e2ef]">
+                        <div class="flex justify-between border-b border-[#d9e2ef] py-2">
+                            <span class="font-medium">Suma de Materiales</span>
+                            <span class="font-bold text-[#003366]">S/ 83.00</span>
+                        </div>
+                        <div class="flex justify-between border-b border-[#d9e2ef] py-2">
+                            <span class="font-medium">Imprevistos (10%)</span>
+                            <span class="font-bold text-[#003366]">S/ 8.30</span>
+                        </div>
+                        <div class="flex justify-between py-2 text-lg font-bold">
+                            <span>TOTAL ESTIMADO</span>
+                            <span class="text-[#f7931e]">S/ 91.30</span>
+                        </div>
+                    </div>
+                    <!-- Botón con Alpine.js para mostrar/ocultar detalle del ahorro -->
+                    <div x-data="{ showAhorro: false }" class="mt-4">
+                        <button @click="showAhorro = !showAhorro" class="bg-[#f7931e] hover:bg-[#e07c0e] text-white font-bold py-2 px-4 rounded-full transition-custom">
+                            <span x-text="showAhorro ? '🔽 Ocultar ahorro' : '💰 Ver ahorro estimado'"></span>
+                        </button>
+                        <div x-show="showAhorro" x-transition.duration.300ms class="mt-3 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800">
+                            <p class="font-semibold">💊 Ahorro en medicinas</p>
+                            <p class="text-sm">Al prevenir enfermedades por contacto con bacterias, se puede ahorrar hasta <strong>S/ 200</strong> al año en consultas y medicamentos. ¡Inversión recuperada en menos de 6 meses!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col justify-center items-center bg-[#f0f4fa] rounded-2xl p-6 border border-[#d9e2ef]">
+                    <p class="text-5xl mb-2">🗑️</p>
+                    <p class="text-2xl font-black text-[#003366]">S/ 91.30</p>
+                    <p class="text-sm text-gray-600">Inversión total</p>
+                    <div class="w-full bg-[#d9e2ef] h-3 rounded-full mt-3 overflow-hidden">
+                        <div class="bg-[#f7931e] h-full rounded-full" style="width: 91%;"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Costo vs. beneficio: 91% del presupuesto</p>
+                </div>
+            </div>
+
+            <!-- Pequeña nota de impacto -->
+            <div class="mt-6 text-center text-sm text-gray-500 border-t border-[#e6edf6] pt-4">
+                <span class="inline-block bg-[#f7931e] text-white px-3 py-1 rounded-full text-xs font-bold">♻️ Sostenible</span>
+                <span class="inline-block bg-[#003366] text-white px-3 py-1 rounded-full text-xs font-bold ml-2">💡 Innovador</span>
+                <span class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold ml-2">🧼 Higiénico</span>
+            </div>
+        </div>
+
+        <!-- ============================================================
+        SECCIÓN: EQUIPO (ORGANIGRAMA)
+        ============================================================ -->
+        <h2 class="text-3xl font-bold text-[#003366] border-b-4 border-[#f7931e] pb-2 inline-block mt-12 mb-6">
+            👥 Integrantes del Proyecto
+        </h2>
+
+        <div class="bg-white rounded-2xl p-6 shadow-md border-l-[6px] border-[#f7931e]">
+            <h3 class="text-xl font-bold text-[#003366] flex items-center gap-2">🌟 Estudiantes de 5to grado</h3>
+            <div class="flex flex-wrap justify-center items-center gap-6 mt-4">
+                <div class="text-center bg-white px-8 py-4 rounded-full border-2 border-[#003366] shadow-sm transition-custom hover:border-[#f7931e] hover:scale-105">
+                    <div class="text-2xl font-bold text-[#003366]">Diego</div>
+                    <div class="text-sm text-[#f7931e] font-semibold">👨‍🔬 Investigador &amp; Programador</div>
+                </div>
+                <span class="text-3xl text-[#f7931e] font-light">✦</span>
+                <div class="text-center bg-white px-8 py-4 rounded-full border-2 border-[#003366] shadow-sm transition-custom hover:border-[#f7931e] hover:scale-105">
+                    <div class="text-2xl font-bold text-[#003366]">Jhon</div>
+                    <div class="text-sm text-[#f7931e] font-semibold">🧰 Diseñador &amp; Constructor</div>
+                </div>
+            </div>
+            <p class="text-center text-[#1a4b7a] font-medium mt-4 text-sm">⚡ 2 integrantes · 5to grado · I.E. San Ignacio de Loyola · Juliaca</p>
+        </div>
+         <!-- ============================================================
+        BOTÓN PARA IR AL CUESTIONARIO INTERACTIVO
+        ============================================================ -->
+        <div x-data="{ clicked: false }" class="flex justify-center mt-8">
+            <a href="cuestionario-rubrica.html"
+                @click="clicked = true; setTimeout(() => clicked = false, 2000)"
+                class="inline-flex items-center gap-3 bg-[#f7931e] hover:bg-[#e07c0e] text-white font-bold py-4 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg">
+                <span x-show="!clicked">🎤 Cuestionario Interactivo del Jurado</span>
+                <span x-show="clicked" x-transition.duration.300ms>✅ ¡Prepárate! Cargando...</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+            </a>
+</div>
+
+    </main>
+
+    <!-- ============================================================
+    FOOTER (información básica en líneas separadas)
+    ============================================================ -->
+    <footer class="bg-[#003366] text-[#cce0f5] border-t-4 border-[#f7931e] mt-12 py-6 text-center text-sm">
+        <div class="container mx-auto px-4 space-y-1">
+            <p class="font-semibold">Feria Escolar Nacional de Ciencia y Tecnología EUREKA 2026</p>
+            <p>Categoría C · Indagación en Ciencia y Tecnología</p>
+            <p>I.E. San Ignacio de Loyola · Nivel Primaria · Juliaca</p>
+            <p>Proyecto: Tacho de Basura Inteligente · Estudiantes: Diego &amp; Jhon · 5to grado</p>
+            <p class="text-[#99bbdd] text-xs pt-1">
+                <a href="#" class="hover:text-white transition">📧 contacto@eureka2026.pe</a> &nbsp;|&nbsp;
+                <a href="#" class="hover:text-white transition">🔗 Cuestionario Interactivo</a>
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>
