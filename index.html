@@ -83,27 +83,24 @@
     HEADER (con colores EUREKA)
     ============================================================ -->
     <header class="bg-[#003366] text-white border-b-4 border-[#f7931e] shadow-lg relative overflow-hidden">
-        <!-- Decoración de fondo -->
         <div class="absolute inset-0 opacity-10 pointer-events-none">
             <div class="absolute -top-20 -right-20 w-96 h-96 bg-[#f7931e] rounded-full mix-blend-multiply"></div>
             <div class="absolute -bottom-20 -left-20 w-96 h-96 bg-[#f7931e] rounded-full mix-blend-multiply"></div>
         </div>
-
-        <div class="container mx-auto px-4 py-8 relative z-10 text-center">
-            <div class="flex flex-col items-center justify-center gap-2">
-                <!-- Logo SVG + texto -->
+        <div class="container mx-auto px-4 py-6 relative z-10 text-center">
+            <div class="flex flex-col items-center justify-center gap-1">
                 <div class="flex items-center gap-3">
-                    <svg width="70" height="70" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-lg">
+                    <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-lg">
                         <circle cx="50" cy="50" r="45" stroke="#f7931e" stroke-width="5" />
                         <path d="M30 50 L45 65 L70 35" stroke="#f7931e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
                         <circle cx="50" cy="50" r="12" fill="#f7931e" opacity="0.2" />
-                        <text x="50" y="68" font-family="Arial" font-size="14" fill="white" text-anchor="middle" font-weight="bold">E</text>
+                        <text x="50" y="68" font-family="Arial" font-size="14" fill="white" text-anchor="middle" font-weight="bold"></text>
                     </svg>
-                    <h1 class="text-5xl md:text-7xl font-black tracking-widest">
+                    <h1 class="text-4xl md:text-5xl font-black tracking-widest">
                         EUREKA<span class="text-[#f7931e]">2026</span>
                     </h1>
                 </div>
-                <p class="text-xl md:text-2xl font-semibold text-[#ffd699] tracking-wide">Feria de Ciencia y Tecnología</p>
+                <p class="text-lg md:text-xl font-semibold text-[#ffd699] tracking-wide">Feria de Ciencia y Tecnología</p>
                 <div class="flex flex-wrap justify-center gap-3 mt-2">
                     <span class="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium">🏆 Categoría C</span>
                     <span class="bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium">🏫 I.E. San Ignacio de Loyola · Nivel Primaria</span>
@@ -429,7 +426,7 @@
             </div>
 
             <!-- Pequeña nota de impacto -->
-            <div class="mt-6 text-center text-sm text-gray-500 border-t border-[#e6edf6] pt-4">
+            <div class="flex flex-wrap justify-center gap-3 mt-6">
                 <span class="inline-block bg-[#f7931e] text-white px-3 py-1 rounded-full text-xs font-bold">♻️ Sostenible</span>
                 <span class="inline-block bg-[#003366] text-white px-3 py-1 rounded-full text-xs font-bold ml-2">💡 Innovador</span>
                 <span class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold ml-2">🧼 Higiénico</span>
@@ -465,11 +462,8 @@
             <a href="cuestionario-rubrica.html"
                 @click="clicked = true; setTimeout(() => clicked = false, 2000)"
                 class="inline-flex items-center gap-3 bg-[#f7931e] hover:bg-[#e07c0e] text-white font-bold py-4 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg">
-                <span x-show="!clicked">🎤 Cuestionario Interactivo del Jurado</span>
+                <span x-show="!clicked">Cuestionario Interactivo</span>
                 <span x-show="clicked" x-transition.duration.300ms>✅ ¡Prepárate! Cargando...</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
             </a>
 </div>
 
@@ -478,7 +472,7 @@
     <!-- ============================================================
     FOOTER (información básica en líneas separadas)
     ============================================================ -->
-    <footer class="bg-[#003366] text-[#cce0f5] border-t-4 border-[#f7931e] mt-12 py-6 text-center text-sm">
+    <footer class="bg-[#003366] text-[#cce0f5] border-t-4 border-[#f7931e] mt-2 py-6 text-center text-sm">
         <div class="container mx-auto px-4 space-y-1">
             <p class="font-semibold">Feria Escolar Nacional de Ciencia y Tecnología EUREKA 2026</p>
             <p>Categoría C · Indagación en Ciencia y Tecnología</p>
