@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WATAK - NEXUS | Control Keypad IoT</title>
+    <title>WATAK - NEXUS | Panel Unificado IoT</title>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <style>
         :root {
             --bg: #0b1120;
             --card: #1e293b;
+            --inner: #0f172a;
             --text: #f8fafc;
             --muted: #94a3b8;
             --green: #10b981;
             --red: #ef4444;
             --yellow: #f59e0b;
-            --blue: #3b82f6;
+            --blue: #38bdf8;
+            --border: #334155;
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body {
             background-color: var(--bg);
             color: var(--text);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -29,59 +32,136 @@
         }
         .panel {
             background: var(--card);
-            padding: 25px;
+            padding: 24px;
             border-radius: 18px;
             box-shadow: 0 12px 30px rgba(0,0,0,0.5);
             width: 100%;
-            max-width: 460px;
-            border: 1px solid #334155;
+            max-width: 480px;
+            border: 1px solid var(--border);
         }
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 15px;
-            margin-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+            gap: 8px;
         }
-        .title-group h1 { font-size: 1.25rem; margin: 0; color: #38bdf8; }
-        .title-group small { color: var(--muted); font-size: 0.78rem; }
+        .title-group h1 { font-size: 1.25rem; margin: 0; color: var(--blue); }
+        .title-group small { color: var(--muted); font-size: 0.76rem; }
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
         .badge {
             padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: bold;
         }
         .badge.online { background: rgba(16, 185, 129, 0.2); color: var(--green); }
         .badge.offline { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+        .audio-btn {
+            background: #334155;
+            color: var(--text);
+            border: 1px solid #475569;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 0.72rem;
+            cursor: pointer;
+        }
+        .audio-btn.ready {
+            background: rgba(56, 189, 248, 0.2);
+            color: var(--blue);
+            border-color: var(--blue);
+        }
+
+        /* Menú de Navegación por Pestañas */
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: var(--inner);
+            padding: 6px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+        }
+        .tab-btn {
+            background: transparent;
+            color: var(--muted);
+            padding: 10px 6px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active {
+            background: var(--blue);
+            color: #0b1120;
+            box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
+        }
+
+        /* Secciones de cada Prototipo */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.2s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .status-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
         .status-box {
-            background: #0f172a;
+            background: var(--inner);
             padding: 12px;
             border-radius: 10px;
             border-left: 4px solid var(--muted);
         }
-        .status-box span.label { display: block; color: var(--muted); font-size: 0.75rem; margin-bottom: 4px; }
-        .status-box span.value { font-weight: bold; font-size: 0.95rem; }
+        .status-box span.label { display: block; color: var(--muted); font-size: 0.74rem; margin-bottom: 4px; }
+        .status-box span.value { font-weight: bold; font-size: 0.92rem; }
 
+        /* Elementos específicos Ultrasónico */
+        .sonar-card {
+            background: var(--inner);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+        }
+        .sonar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+        .sonar-dist { font-size: 1.65rem; font-weight: bold; color: var(--blue); }
+        .bar-bg { width: 100%; height: 10px; background: var(--card); border-radius: 6px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; background: var(--green); transition: width 0.3s, background 0.3s; }
+        .umbral-box { background: var(--inner); padding: 12px; border-radius: 10px; margin-bottom: 14px; }
+        .umbral-box label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+        input[type="range"] { width: 100%; accent-color: var(--blue); cursor: pointer; }
+
+        /* Elementos específicos Keypad */
         .pin-box {
-            background: #0f172a;
-            padding: 12px;
+            background: var(--inner);
+            padding: 10px;
             border-radius: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
             display: flex;
             gap: 8px;
         }
         .pin-box input {
             flex: 1;
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: var(--card);
+            border: 1px solid var(--border);
             color: white;
             padding: 10px;
             border-radius: 8px;
@@ -90,11 +170,13 @@
             letter-spacing: 3px;
             text-align: center;
         }
-        .pin-box button { background: #8b5cf6; padding: 10px 15px; }
+        .pin-box button { background: #8b5cf6; padding: 10px 14px; }
 
+        /* Controles comunes */
         .section-title {
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             color: var(--muted);
             margin: 12px 0 6px 0;
         }
@@ -103,97 +185,270 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
-        button {
+        button.action-btn {
             border: none;
             padding: 12px;
             border-radius: 10px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: bold;
             cursor: pointer;
             color: white;
             transition: transform 0.1s, opacity 0.2s;
         }
-        button:active { transform: scale(0.97); }
-        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        button.action-btn:active { transform: scale(0.97); }
+        button.action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-armar { background: var(--green); }
         .btn-desarmar { background: var(--red); }
-        .btn-abrir { background: #0ea5e9; }
         .btn-cerrar { background: #6366f1; }
+        .btn-abrir { background: #0ea5e9; }
+
         .log {
-            margin-top: 15px;
+            margin-top: 16px;
             font-size: 0.72rem;
             color: var(--muted);
-            background: #0f172a;
-            padding: 8px;
+            background: var(--inner);
+            padding: 8px 10px;
             border-radius: 8px;
-            height: 60px;
+            height: 62px;
             overflow-y: auto;
             font-family: monospace;
+        }
+
+        /* Pie de página */
+        footer {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        footer .modulo-txt {
+            display: block;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+        }
+        footer a {
+            color: var(--blue);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        footer a:hover {
+            color: #7dd3fc;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
+<!-- AUDIO DE SIRENA DE ALERTA -->
+<audio id="sirena" src="https://static.hooksounds.com/uploads/preview/sfx/Police-Siren-1_66fb551672e250.78872312.mp3#t=0" loop></audio>
+
 <div class="panel">
     <header>
         <div class="title-group">
-            <h1>🔐 WATAK - NEXUS</h1>
-            <small>Prototipo 3 • Control de Acceso Keypad IoT</small>
+            <h1>🛡️ WATAK - NEXUS</h1>
+            <small>Politécnico Regional Los Andes • Juliaca</small>
         </div>
-        <span id="connStatus" class="badge offline">Desconectado</span>
+        <div class="header-right">
+            <span id="connStatus" class="badge offline">Desconectado</span>
+            <button id="btnAudio" class="audio-btn" onclick="activarAudio()">🔇 Activar Sonido</button>
+        </div>
     </header>
 
-    <div class="status-grid">
-        <div class="status-box" id="boxArmado">
-            <span class="label">Estado Sistema</span>
-            <span class="value" id="valArmado">---</span>
-        </div>
-        <div class="status-box" id="boxAlarma">
-            <span class="label">Seguridad / PIN</span>
-            <span class="value" id="valAlarma">---</span>
-        </div>
-        <div class="status-box" id="boxServo">
-            <span class="label">Cerradura (Servo)</span>
-            <span class="value" id="valServo">---</span>
-        </div>
-        <div class="status-box" id="boxFallos">
-            <span class="label">Intentos Fallidos</span>
-            <span class="value" id="valFallos">0</span>
-        </div>
-    </div>
+    <!-- MENÚ DE NAVEGACIÓN -->
+    <nav class="tabs">
+        <button class="tab-btn active" onclick="cambiarTab('pir', this)">PIR</button>
+        <button class="tab-btn" onclick="cambiarTab('ultrasonico', this)">Ultrasónico</button>
+        <button class="tab-btn" onclick="cambiarTab('keypad', this)">Keypad</button>
+    </nav>
 
-    <div class="section-title">Cambiar Clave de Acceso (4 Teclas: 0-9, A-D)</div>
-    <div class="pin-box">
-        <input type="text" id="nuevoPin" maxlength="4" placeholder="A4B9">
-        <button onclick="cambiarPin()" disabled>💾 GUARDAR PIN</button>
-    </div>
+    <!-- ==================== PESTAÑA 1: PIR ==================== -->
+    <section id="tab-pir" class="tab-content active">
+        <div class="status-grid">
+            <div class="status-box" id="pirBoxArmado">
+                <span class="label">Sistema</span>
+                <span class="value" id="pirValArmado">---</span>
+            </div>
+            <div class="status-box" id="pirBoxAlarma">
+                <span class="label">Sirena / Alerta</span>
+                <span class="value" id="pirValAlarma">---</span>
+            </div>
+            <div class="status-box" id="pirBoxMov">
+                <span class="label">Sensor PIR</span>
+                <span class="value" id="pirValMov">---</span>
+            </div>
+            <div class="status-box" id="pirBoxServo">
+                <span class="label">Cerradura (Servo)</span>
+                <span class="value" id="pirValServo">---</span>
+            </div>
+        </div>
 
-    <div class="section-title">Modo del Sistema</div>
-    <div class="controls">
-        <button class="btn-armar" onclick="enviarComando('armar')" disabled>🔒 ARMAR</button>
-        <button class="btn-desarmar" onclick="enviarComando('desarmar')" disabled>🔓 APAGAR</button>
-    </div>
+        <div class="section-title">Control de Seguridad</div>
+        <div class="controls">
+            <button class="action-btn btn-armar" onclick="enviarComando('armar')" disabled>🔒 ARMAR</button>
+            <button class="action-btn btn-desarmar" onclick="enviarComando('desarmar')" disabled>🔓 DESARMAR</button>
+        </div>
 
-    <div class="section-title">Apertura Remota</div>
-    <div class="controls">
-        <button class="btn-abrir" onclick="enviarComando('abrir_puerta')" disabled>🔑 ABRIR (10s)</button>
-        <button class="btn-cerrar" onclick="enviarComando('cerrar_puerta')" disabled>🚪 BLOQUEAR</button>
-    </div>
+        <div class="section-title">Control de Cerradura</div>
+        <div class="controls">
+            <button class="action-btn btn-cerrar" onclick="enviarComando('cerrar_puerta')" disabled>🚪 CERRAR (0°)</button>
+            <button class="action-btn btn-abrir" onclick="enviarComando('abrir_puerta')" disabled>🔑 ABRIR (90°)</button>
+        </div>
+    </section>
 
+    <!-- ==================== PESTAÑA 2: ULTRASÓNICO ==================== -->
+    <section id="tab-ultrasonico" class="tab-content">
+        <div class="sonar-card">
+            <div class="sonar-header">
+                <span style="color:var(--muted); font-size:0.82rem;">Distancia Objeto / Intruso</span>
+                <span class="sonar-dist" id="usValDist">--- cm</span>
+            </div>
+            <div class="bar-bg">
+                <div class="bar-fill" id="usBarDist"></div>
+            </div>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-box" id="usBoxArmado">
+                <span class="label">Sistema</span>
+                <span class="value" id="usValArmado">---</span>
+            </div>
+            <div class="status-box" id="usBoxAlarma">
+                <span class="label">Alerta</span>
+                <span class="value" id="usValAlarma">---</span>
+            </div>
+        </div>
+
+        <div class="umbral-box">
+            <label>
+                <span>Distancia de Disparo (Umbral):</span>
+                <strong style="color:var(--blue);" id="usLblUmbral">50 cm</strong>
+            </label>
+            <input type="range" id="usRangeUmbral" min="15" max="250" value="50" onchange="cambiarUmbral(this.value)">
+        </div>
+
+        <div class="section-title">Control de Seguridad y Acceso</div>
+        <div class="controls">
+            <button class="action-btn btn-armar" onclick="enviarComando('armar')" disabled>🔒 ARMAR</button>
+            <button class="action-btn btn-desarmar" onclick="enviarComando('desarmar')" disabled>🔓 DESARMAR</button>
+            <button class="action-btn btn-cerrar" onclick="enviarComando('cerrar_puerta')" disabled>🚪 CERRAR (0°)</button>
+            <button class="action-btn btn-abrir" onclick="enviarComando('abrir_puerta')" disabled>🔑 ABRIR (90°)</button>
+        </div>
+    </section>
+
+    <!-- ==================== PESTAÑA 3: KEYPAD ==================== -->
+    <section id="tab-keypad" class="tab-content">
+        <div class="status-grid">
+            <div class="status-box" id="kpBoxArmado">
+                <span class="label">Estado Sistema</span>
+                <span class="value" id="kpValArmado">---</span>
+            </div>
+            <div class="status-box" id="kpBoxAlarma">
+                <span class="label">Seguridad / PIN</span>
+                <span class="value" id="kpValAlarma">---</span>
+            </div>
+            <div class="status-box" id="kpBoxServo">
+                <span class="label">Cerradura (Servo)</span>
+                <span class="value" id="kpValServo">---</span>
+            </div>
+            <div class="status-box" id="kpBoxFallos">
+                <span class="label">Intentos Fallidos</span>
+                <span class="value" id="kpValFallos">0</span>
+            </div>
+        </div>
+
+        <div class="section-title">Cambiar Clave de Acceso (4 Teclas)</div>
+        <div class="pin-box">
+            <input type="text" id="kpNuevoPin" maxlength="4" placeholder="A4B9">
+            <button class="action-btn" onclick="cambiarPin()" disabled>💾 GUARDAR</button>
+        </div>
+
+        <div class="section-title">Control de Modo y Apertura Remota</div>
+        <div class="controls">
+            <button class="action-btn btn-armar" onclick="enviarComando('armar')" disabled>🔒 ARMAR</button>
+            <button class="action-btn btn-desarmar" onclick="enviarComando('desarmar')" disabled>🔓 APAGAR</button>
+            <button class="action-btn btn-abrir" onclick="enviarComando('abrir_puerta')" disabled>🔑 ABRIR (10s)</button>
+            <button class="action-btn btn-cerrar" onclick="enviarComando('cerrar_puerta')" disabled>🚪 BLOQUEAR</button>
+        </div>
+    </section>
+
+    <!-- REGISTRO DE ACTIVIDAD MQTT -->
     <div class="log" id="logBox">Conectando al broker MQTT...</div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer>
+        <span class="modulo-txt">Módulo: Diseño y construcción de sistemas electrónicos automáticos básicos</span>
+        Proyecto IoT • <a href="https://github.com/jorge103144/Watak-Nexus" target="_blank" rel="noopener noreferrer">Diseño Digital</a>
+    </footer>
 </div>
 
 <script>
+    // Gestión de audio de sirena
+    const audioSirena = document.getElementById('sirena');
+    const btnAudio = document.getElementById('btnAudio');
+    let audioHabilitado = false;
+
+    function activarAudio() {
+        audioSirena.play().then(() => {
+            audioSirena.pause();
+            audioSirena.currentTime = 0;
+            audioHabilitado = true;
+            btnAudio.textContent = '🔊 Sonido Listo';
+            btnAudio.classList.add('ready');
+            agregarLog('Audio de sirena habilitado');
+        }).catch(() => {
+            agregarLog('Haz clic en cualquier botón para permitir audio');
+        });
+    }
+
+    // Desbloquear audio automáticamente con el primer clic del usuario en la página
+    document.body.addEventListener('click', () => {
+        if (!audioHabilitado) {
+            audioSirena.play().then(() => {
+                audioSirena.pause();
+                audioSirena.currentTime = 0;
+                audioHabilitado = true;
+                btnAudio.textContent = '🔊 Sonido Listo';
+                btnAudio.classList.add('ready');
+            }).catch(() => {});
+        }
+    }, { once: true });
+
+    function controlarSirenaWeb(alarmaActiva) {
+        if (alarmaActiva) {
+            if (audioSirena.paused) {
+                audioSirena.play().catch(err => console.warn('Bloqueo de autoplay:', err));
+            }
+        } else {
+            if (!audioSirena.paused) {
+                audioSirena.pause();
+                audioSirena.currentTime = 0;
+            }
+        }
+    }
+
+    // Navegación entre pestañas
+    function cambiarTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    // Configuración MQTT Unificada
     const BROKER_URL   = 'wss://broker.emqx.io:8084/mqtt';
     const TOPIC_CMD    = 'watak_nexus_erick2026/comando';
     const TOPIC_ESTADO = 'watak_nexus_erick2026/estado';
 
-    const clientId = 'web_kp_' + Math.random().toString(16).substr(2, 8);
+    const clientId = 'web_watak_' + Math.random().toString(16).substr(2, 8);
     const client = mqtt.connect(BROKER_URL, { clientId });
 
     const connStatus = document.getElementById('connStatus');
     const logBox = document.getElementById('logBox');
-    const botones = document.querySelectorAll('button');
+    const botonesAccion = document.querySelectorAll('.action-btn');
 
     function agregarLog(msg) {
         const hora = new Date().toLocaleTimeString();
@@ -203,8 +458,8 @@
     client.on('connect', () => {
         connStatus.textContent = 'En Línea';
         connStatus.className = 'badge online';
-        botones.forEach(b => b.disabled = false);
-        agregarLog('Conectado a WATAK-NEXUS Keypad');
+        botonesAccion.forEach(b => b.disabled = false);
+        agregarLog('Conectado a WATAK-NEXUS');
 
         client.subscribe(TOPIC_ESTADO, (err) => {
             if (!err) enviarComando('estado');
@@ -215,7 +470,7 @@
         if (topic === TOPIC_ESTADO) {
             try {
                 const data = JSON.parse(message.toString());
-                actualizarInterfaz(data);
+                actualizarInterfazGlobal(data);
             } catch (e) {}
         }
     });
@@ -223,44 +478,63 @@
     client.on('offline', () => {
         connStatus.textContent = 'Desconectado';
         connStatus.className = 'badge offline';
-        botones.forEach(b => b.disabled = true);
+        botonesAccion.forEach(b => b.disabled = true);
+        controlarSirenaWeb(false);
     });
 
-    function actualizarInterfaz(data) {
-        const valArmado = document.getElementById('valArmado');
-        const boxArmado = document.getElementById('boxArmado');
-        valArmado.textContent = data.armado ? 'ARMADO' : 'APAGADO';
-        valArmado.style.color = data.armado ? 'var(--green)' : 'var(--muted)';
-        boxArmado.style.borderLeftColor = data.armado ? 'var(--green)' : 'var(--muted)';
+    function pintarEstado(boxId, valId, texto, color) {
+        const box = document.getElementById(boxId);
+        const val = document.getElementById(valId);
+        if (!box || !val) return;
+        val.textContent = texto;
+        val.style.color = color;
+        box.style.borderLeftColor = color;
+    }
 
-        const valAlarma = document.getElementById('valAlarma');
-        const boxAlarma = document.getElementById('boxAlarma');
-        if (data.alarma) {
-            valAlarma.textContent = '¡PIN ERRÓNEO!';
-            valAlarma.style.color = 'var(--red)';
-            boxAlarma.style.borderLeftColor = 'var(--red)';
-        } else if (data.acceso) {
-            valAlarma.textContent = 'ACCESO OK';
-            valAlarma.style.color = 'var(--green)';
-            boxAlarma.style.borderLeftColor = 'var(--green)';
-        } else {
-            valAlarma.textContent = 'En espera';
-            valAlarma.style.color = 'var(--muted)';
-            boxAlarma.style.borderLeftColor = 'var(--muted)';
+    function actualizarInterfazGlobal(data) {
+        // Activar o detener la sirena web sincronizada con el buzzer
+        controlarSirenaWeb(Boolean(data.alarma));
+
+        const txtArmado = data.armado ? 'ARMADO' : 'APAGADO';
+        const colArmado = data.armado ? 'var(--green)' : 'var(--muted)';
+        const txtServo  = data.cerradura || '---';
+        const colServo  = (data.cerradura === 'CERRADA') ? '#818cf8' : '#38bdf8';
+
+        // 1. Actualizar vista PIR
+        pintarEstado('pirBoxArmado', 'pirValArmado', txtArmado, colArmado);
+        pintarEstado('pirBoxAlarma', 'pirValAlarma', data.alarma ? '¡INTRUSO!' : 'Normal', data.alarma ? 'var(--red)' : 'var(--muted)');
+        pintarEstado('pirBoxMov', 'pirValMov', data.movimiento ? 'DETECTADO' : 'Sin novedad', data.movimiento ? 'var(--yellow)' : 'var(--muted)');
+        pintarEstado('pirBoxServo', 'pirValServo', txtServo, colServo);
+
+        // 2. Actualizar vista Ultrasónico
+        pintarEstado('usBoxArmado', 'usValArmado', txtArmado, colArmado);
+        pintarEstado('usBoxAlarma', 'usValAlarma', data.alarma ? '¡INTRUSO!' : 'Normal', data.alarma ? 'var(--red)' : 'var(--muted)');
+        if (data.distancia !== undefined) {
+            const d = data.distancia;
+            const u = data.umbral ?? 50;
+            const valDist = document.getElementById('usValDist');
+            const barDist = document.getElementById('usBarDist');
+            valDist.textContent = `${d} cm`;
+            barDist.style.width = `${Math.min(100, Math.round((d / 300) * 100))}%`;
+            const alertaDist = d < u;
+            valDist.style.color = alertaDist ? 'var(--red)' : 'var(--blue)';
+            barDist.style.background = alertaDist ? 'var(--red)' : 'var(--green)';
+            document.getElementById('usLblUmbral').textContent = `${u} cm`;
+            document.getElementById('usRangeUmbral').value = u;
         }
 
-        const valServo = document.getElementById('valServo');
-        const boxServo = document.getElementById('boxServo');
-        valServo.textContent = data.cerradura || '---';
-        valServo.style.color = (data.cerradura === 'CERRADA') ? '#818cf8' : '#38bdf8';
-        boxServo.style.borderLeftColor = (data.cerradura === 'CERRADA') ? '#818cf8' : '#38bdf8';
-
-        const valFallos = document.getElementById('valFallos');
-        const boxFallos = document.getElementById('boxFallos');
-        valFallos.textContent = data.fallos ?? 0;
-        if ((data.fallos ?? 0) > 0) {
-            valFallos.style.color = 'var(--yellow)';
-            boxFallos.style.borderLeftColor = 'var(--yellow)';
+        // 3. Actualizar vista Keypad
+        pintarEstado('kpBoxArmado', 'kpValArmado', txtArmado, colArmado);
+        pintarEstado('kpBoxServo', 'kpValServo', txtServo, colServo);
+        if (data.alarma) {
+            pintarEstado('kpBoxAlarma', 'kpValAlarma', '¡PIN ERRÓNEO!', 'var(--red)');
+        } else if (data.acceso) {
+            pintarEstado('kpBoxAlarma', 'kpValAlarma', 'ACCESO OK', 'var(--green)');
+        } else {
+            pintarEstado('kpBoxAlarma', 'kpValAlarma', 'En espera', 'var(--muted)');
+        }
+        if (data.fallos !== undefined) {
+            pintarEstado('kpBoxFallos', 'kpValFallos', data.fallos, data.fallos > 0 ? 'var(--yellow)' : 'var(--muted)');
         }
     }
 
@@ -269,15 +543,22 @@
         agregarLog(`Enviado: ${cmd}`);
     }
 
+    function cambiarUmbral(valor) {
+        document.getElementById('usLblUmbral').textContent = `${valor} cm`;
+        enviarComando(`umbral:${valor}`);
+    }
+
     function cambiarPin() {
-        const pin = document.getElementById('nuevoPin').value.trim().toUpperCase();
+        const input = document.getElementById('kpNuevoPin');
+        const pin = input.value.trim().toUpperCase();
         if (pin.length !== 4) {
             alert('El PIN debe tener exactamente 4 caracteres (ejemplo: A4B9 o 1234).');
             return;
         }
         enviarComando(`pin:${pin}`);
-        document.getElementById('nuevoPin').value = '';
+        input.value = '';
     }
 </script>
+
 </body>
 </html>
